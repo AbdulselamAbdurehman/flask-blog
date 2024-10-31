@@ -49,7 +49,7 @@ def create():
     return render_template('petition/create.html')
 
 
-@bp.route('/<string:id>/update', methods=('GET', 'POST'))
+@bp.route('/update/<string:id>', methods=('GET', 'POST'))
 @login_required
 def update(id):
     """Updates an existing petition."""
