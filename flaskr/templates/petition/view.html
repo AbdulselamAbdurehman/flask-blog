@@ -4,7 +4,7 @@ block content %}
   <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ petition.title }}</h1>
   <p class="text-gray-600 mb-4">{{ petition.body }}</p>
   <div class="text-sm text-gray-400 mb-4">
-    by {{ petition.author_id }} on {{ petition.created[:10] | date('F j, Y') }}
+    by {{ petition.author_id }} on {{ petition.created[:10] }}
     <!-- Assuming 'created' is in ISO format -->
   </div>
 
@@ -12,29 +12,17 @@ block content %}
   <div class="flex space-x-4 mb-4">
     <a
       href="{{ url_for('petition.update', id=petition.petition_id) }}"
-      <!--
-      Corrected
-      the
-      key
-      to
-      petition_id
-      --
+      class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 transition duration-200"
+      aria-label="Edit this
+      petition"
     >
-      class="bg-yellow-500 text-white px-4 py-2 rounded shadow
-      hover:bg-yellow-600 transition duration-200" aria-label="Edit this
-      petition" > Edit
+      Edit
     </a>
     <form
       action="{{ url_for('petition.delete', id=petition.petition_id) }}"
-      <!--
-      Corrected
-      the
-      key
-      to
-      petition_id
-      --
+      method="post"
+      style="display: inline"
     >
-      method="post" style="display: inline" >
       <button
         type="submit"
         class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition duration-200"

@@ -8,6 +8,25 @@
       rel="stylesheet"
     />
     <title>{% block title %}My PetitionApp{% endblock %}</title>
+    <style>
+      html,
+      body {
+        min-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content {
+        flex: 1; /* This allows the content area to take up remaining space */
+      }
+
+      footer {
+        background-color: #1e3a8a; /* Example background color for the footer */
+        color: white; /* Example text color */
+        padding: 1rem;
+        text-align: center;
+      }
+    </style>
   </head>
   <body class="bg-gray-50 font-sans">
     <nav class="bg-blue-600 shadow-lg">
@@ -42,7 +61,7 @@
       </div>
     </nav>
 
-    <div class="container mx-auto mt-8">
+    <div class="container mx-auto mt-8 content">
       {% with messages = get_flashed_messages() %} {% if messages %}
       <div
         class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6"
@@ -61,31 +80,8 @@
       </div>
     </div>
 
-    <footer class="bg-blue-600 text-white mt-8 py-4">
-      <div class="container mx-auto text-center">
-        <p>&copy; {{ current_year }} My PetitionApp. All rights reserved.</p>
-        <p class="text-sm">Today's date: {{ current_date }}</p>
-      </div>
+    <footer>
+      <p>© {{ current_year }} My PetitionApp. All rights reserved.</p>
     </footer>
-
-    {% block scripts %}
-    <script>
-      // JavaScript to set current year and date dynamically
-      document.addEventListener("DOMContentLoaded", function () {
-        const date = new Date();
-        const year = date.getFullYear();
-        const options = { year: "numeric", month: "long", day: "numeric" };
-        const currentDate = date.toLocaleDateString(undefined, options);
-
-        // Set the footer content
-        document.querySelector(
-          "footer p:nth-child(1)"
-        ).textContent = `© ${year} My PetitionApp. All rights reserved.`;
-        document.querySelector(
-          "footer p:nth-child(2)"
-        ).textContent = `Today's date: ${currentDate}`;
-      });
-    </script>
-    {% endblock %}
   </body>
 </html>

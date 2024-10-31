@@ -3,7 +3,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_dynamodb_resource
 from botocore.exceptions import ClientError
 import functools
-from boto3.dynamodb.conditions import Key
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -32,13 +31,11 @@ def register():
             # Store the user in DynamoDB
             table = dynamodb.Table('Users')
             try:
-                # Check for existing username
-                username_response = table.query(
-                    IndexName='UsernameIndex',  # Ensure this index exists
-                    KeyConditionExpression=Key('username').eq(username)
-                )
-                
-                if username_response['Items']:
+                # Check for existing username by scanning the table
+                username_response = table.scan()  # Scan the entire table
+                usernames = [item['username'] for item in username_response.get('Items', [])]
+
+                if username in usernames:
                     error = 'Username is already taken.'
                 else:
                     # Check for existing email
@@ -60,7 +57,8 @@ def register():
                     session['user_id'] = email  # Set the session
                     return redirect(url_for('index'))  # Redirect after successful registration
             except ClientError as e:
-                error = 'Registration failed. Please try again later.'
+                print(e)
+                error = e.response['Error']['Message']  # Use the correct message for error
 
         flash(error)
 
