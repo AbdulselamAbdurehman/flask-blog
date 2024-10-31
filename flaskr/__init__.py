@@ -1,9 +1,9 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-import db
-import auth
-
+from . import db
+from . import auth
+from . import petition
 load_dotenv()
 
 
@@ -31,6 +31,8 @@ def create_app(test_config=None):
 
     app.config['DYNAMODB'] = dynamodb
     app.register_blueprint(auth.bp)
+    app.register_blueprint(petition.bp)
+    app.add_url_rule('/', endpoint='index')
 
     @app.route('/hello')
     def hello():

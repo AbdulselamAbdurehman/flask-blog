@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <title>{% block title %}My Petition App{% endblock %}</title>
+  </head>
+  <body class="bg-gray-100">
+    <nav class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <a
+                href="{{ url_for('index') }}"
+                class="text-xl font-bold text-gray-700"
+                >Petition App</a
+              >
+            </div>
+          </div>
+          <div class="hidden md:flex md:items-center">
+            {% if g.user %}
+            <span class="text-gray-600"
+              >Welcome, {{ g.user['username'] }}!</span
+            >
+            <a
+              href="{{ url_for('auth.logout') }}"
+              class="ml-4 text-blue-600 hover:text-blue-800"
+              >Logout</a
+            >
+            {% else %}
+            <a
+              href="{{ url_for('auth.login') }}"
+              class="ml-4 text-blue-600 hover:text-blue-800"
+              >Login</a
+            >
+            <a
+              href="{{ url_for('auth.register') }}"
+              class="ml-4 text-blue-600 hover:text-blue-800"
+              >Register</a
+            >
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto mt-8">
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div
+        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4"
+      >
+        <p class="font-bold">Warning!</p>
+        <ul>
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

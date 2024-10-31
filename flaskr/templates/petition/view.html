@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{{ petition.title }}</h1>
+{% endblock %} {% block content %}
+<article class="petition">
+  <div class="about">
+    <p><strong>Author:</strong> {{ petition.author_id }}</p>
+    <p><strong>Created on:</strong> {{ petition.created }}</p>
+  </div>
+
+  <div class="body">
+    <p>{{ petition.body }}</p>
+  </div>
+
+  {% if g.user and g.user['id'] == petition.author_id %}
+  <div class="actions">
+    <a class="action" href="{{ url_for('petition.update', id=petition.id) }}"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('petition.delete', id=petition.id) }}"
+      method="post"
+      style="display: inline"
+    >
+      <button type="submit" class="action">Delete</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <a class="action" href="{{ url_for('petition.index') }}">Back to List</a>
+</article>
+{% endblock %}

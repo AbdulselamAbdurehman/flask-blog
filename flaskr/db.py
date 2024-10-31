@@ -6,17 +6,22 @@ load_dotenv()
 
 def get_dynamodb_resource():
     """Sets up and returns the DynamoDB resource."""
-    dynamodb = boto3.resource(
-        'dynamodb',
-        endpoint_url=os.getenv('DYNAMODB_ENDPOINT', 'http://localhost:8000'),
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-        region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
-    )
-    return dynamodb
+
+    ddb = boto3.resource('dynamodb',
+                        endpoint_url='http://localhost:8000',
+                        region_name='dummy',
+                        aws_access_key_id='dummy',
+                        aws_secret_access_key='dummy')
+
+    return ddb
+
+
+
+
 
 def init_dynamodb_tables(dynamodb):
     """Initializes DynamoDB tables if they don't exist."""
+
     try:
         dynamodb.create_table(
             TableName='Users',
@@ -42,3 +47,5 @@ def init_dynamodb_tables(dynamodb):
     except dynamodb.meta.client.exceptions.ResourceInUseException:
         # Tables already exist
         pass
+
+
