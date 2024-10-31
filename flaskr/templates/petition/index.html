@@ -1,26 +1,43 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Posts{% endblock %}</h1>
-{% if g.user %}
-<a class="action" href="{{ url_for('blog.create') }}">New</a>
-{% endif %} {% endblock %} {% block content %} {% for post in posts %}
-<article class="post">
-  <header>
-    <div>
-      <h1>{{ post['title'] }}</h1>
-      <div class="about">
-        by {{ post['username'] }} on {% if post['created'] %} {{
-        post['created'][:10] }} {# Assuming created is a string in the format
-        'YYYY-MM-DDTHH:MM:SS' #} {% endif %}
+{% extends 'base.html' %} {% block title %}Petitions{% endblock %} {% block
+content %}
+<h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Petitions</h1>
+
+<div class="flex justify-end mb-4">
+  {% if g.user %}
+  <a
+    href="{{ url_for('petition.create') }}"
+    class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+  >
+    New Petition
+  </a>
+  {% else %}
+  <a
+    href="{{ url_for('auth.login') }}"
+    class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+  >
+    New Petition
+  </a>
+  {% endif %}
+</div>
+
+{% if not petitions %}
+<div class="flex justify-center items-center h-64">
+  <p class="text-gray-500 text-lg">
+    No petitions available. Start a new petition to get started!
+  </p>
+</div>
+{% else %}
+<div class="space-y-6">
+  {% for petition in petitions %}
+  <a class="p-3" href="{{ url_for('petition.view', id=petition.petition_id) }}">
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h2 class="text-xl font-semibold text-gray-700">{{ petition.title }}</h2>
+      <p class="text-gray-600 mt-2">{{ petition.body }}</p>
+      <div class="text-sm text-gray-400 mt-4">
+        by {{ petition.author_id }} on {{ petition.created }}
       </div>
     </div>
-    {% if g.user and g.user['id'] == post['author_id'] %}
-    <a class="action" href="{{ url_for('blog.update', id=post['id']) }}"
-      >Edit</a
-    >
-    {% endif %}
-  </header>
-  <p class="body">{{ post['body'] }}</p>
-</article>
-{% if not loop.last %}
-<hr />
-{% endif %} {% endfor %} {% endblock %}
+  </a>
+  {% endfor %}
+</div>
+{% endif %} {% endblock %}

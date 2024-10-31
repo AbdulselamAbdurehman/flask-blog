@@ -1,75 +1,50 @@
 import datetime
 import uuid
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
-)
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
 from flaskr.auth import login_required
 from .db import get_dynamodb_resource
+from botocore.exceptions import ClientError
+
 
 bp = Blueprint('petition', __name__)
-
 dynamodb = get_dynamodb_resource()
+petitions_table = dynamodb.Table('Petitions')  # Access the Petitions table once
 
 
 @bp.route('/')
 def index():
-    table = dynamodb.Table('Petitions')  # Get the Petitions table
-
-    # Fetch petitions from DynamoDB
-    response = table.scan()  # This will get all items
+    """Displays all petitions."""
+    response = petitions_table.scan()
     petitions = response.get('Items', [])
 
-    # Formatting petitions
-    formatted_petitions = []
+    # Format creation date for display
     for petition in petitions:
-        formatted_petitions.append({
-            'id': petition.get('id', ''),
-            'title': petition.get('title', ''),
-            'body': petition.get('body', ''),
-            'created': petition.get('created', ''),
-            'author_id': petition.get('author_id', ''),
-            'username': petition.get('username', '')
-        })
+        petition['created'] = petition.get('created', '')[:10]  # Keep only the date part if present
 
-    # If created is a string in ISO 8601 format, format it as a date string
-    for petition in formatted_petitions:
-        if petition['created']:
-            petition['created'] = petition['created'][:10]  # Extract just the date part
-
-    return render_template('petition/index.html', petitions=formatted_petitions)
-
+    return render_template('petition/index.html', petitions=petitions)
 
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
+    """Creates a new petition."""
     if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
+        title = request.form.get('title')
+        body = request.form.get('body')
 
         if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
+            flash('Title is required.')
         else:
-
-            table = dynamodb.Table('Petitions')  # 
-
-            # Create a new petition item
+            author_id = g.user['username']   
             item = {
-                'id': str(uuid.uuid4()),  # Generate a unique ID for the petition
+                'petition_id': str(uuid.uuid4()),
                 'title': title,
                 'body': body,
-                'author_id': g.user['id'],
-                'created': datetime.utcnow().isoformat()  # Store the creation time
+                'author_id': author_id,
+                'created': datetime.datetime.now().isoformat(),
             }
-
-            # Insert the item into the DynamoDB table
-            table.put_item(Item=item)
-
+            petitions_table.put_item(Item=item)
             return redirect(url_for('petition.index'))
 
     return render_template('petition/create.html')
@@ -78,54 +53,77 @@ def create():
 @bp.route('/<string:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
-    petition = get_petition(id)
+    """Updates an existing petition."""
+    response = petitions_table.get_item(Key={'id': id})
+    petition = response.get('Item')
+
+    if petition is None:
+        abort(404, f"Petition id {id} doesn't exist.")
+    if petition['author_id'] != g.user['username']:
+        abort(403)
 
     if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
+        title = request.form.get('title')
+        body = request.form.get('body')
 
         if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
+            flash('Title is required.')
         else:
-            table = dynamodb.Table('Petitions')
-            # Update the petition in the DynamoDB table
-            table.update_item(
+            petitions_table.update_item(
                 Key={'id': id},
                 UpdateExpression='SET title = :title, body = :body',
                 ExpressionAttributeValues={':title': title, ':body': body}
             )
-
             return redirect(url_for('petition.index'))
-        
 
+    return render_template('petition/edit.html', petition=petition)
+
+
+from flask import Blueprint, render_template, abort, g
+from botocore.exceptions import ClientError
+from .db import get_dynamodb_resource
+
+bp = Blueprint('petition', __name__)
+dynamodb = get_dynamodb_resource()
+
+@bp.route('/<string:id>', methods=['GET'])
+def view(id):
+    """Display a single petition."""
+    table = dynamodb.Table('Petitions')
     
+    try:
+
+        response = table.get_item(Key={'petition_id': id})  # Ensure this matches your table's primary key
+        petition = response.get('Item')  # Get the item from the response
+        
+        # Debugging output
+        print(f"Fetched petition: {petition}")
+
+        if petition is None:
+            abort(404, "Petition not found.")
+        
+        return render_template('petition/view.html', petition=petition)
+    
+    except ClientError as e:
+        # Log the exception to understand what went wrong
+        print(f"ClientError: {e.response['Error']['Message']}")
+        abort(500, "Unable to retrieve petition. Please try again later.")
+
 
 @bp.route('/<string:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    table = dynamodb.Table('Petitions')
-    # Delete the petition from the DynamoDB table
-    table.delete_item(Key={'id': id})
-    return redirect(url_for('petition.index'))
-
-    
-
-
-def get_petition(id, check_author=True):
-    table = dynamodb.Table('Petitions')  # Get the Petitions table
-
-    # Fetch the petition from DynamoDB
-    response = table.get_item(Key={'id': id})
+    """Deletes a petition if the user is the author."""
+    # Fetch the petition to check the author
+    response = petitions_table.get_item(Key={'id': id})
     petition = response.get('Item')
 
+    # Check if petition exists and if the current user is the author
     if petition is None:
-        abort(404, "Post id {0} doesn't exist.".format(id))
+        abort(404, f"Petition id {id} doesn't exist.")
+    if petition['author_id'] != g.user['username']:
+        abort(403)  # Forbidden: user is not the author
 
-    if check_author and petition['author_id'] != g.user['id']:
-        abort(403)
-
-    return petition
+    # Delete the petition
+    petitions_table.delete_item(Key={'id': id})
+    return redirect(url_for('petition.index'))

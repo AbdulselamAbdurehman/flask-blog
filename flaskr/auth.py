@@ -3,6 +3,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_dynamodb_resource
 from botocore.exceptions import ClientError
 import functools
+from boto3.dynamodb.conditions import Key
+
+
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -14,14 +17,16 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-
+        username = request.form['username']
         error = None
 
         # Validate input
         if not email:
-            error = 'email is required.'
+            error = 'Email is required.'
         elif not password:
             error = 'Password is required.'
+        elif not username:
+            error = 'Username is required.'
         else:
             # Hash the password
             hashed_password = generate_password_hash(password)
@@ -29,16 +34,28 @@ def register():
             # Store the user in DynamoDB
             table = dynamodb.Table('Users')
             try:
-                table.put_item(
-                    Item={
-                        'email': email,  # Using email as the email
-                        'password': hashed_password
-                    },
-                    ConditionExpression='attribute_not_exists(email)'  # Ensure unique email
+                # Check for existing username
+                username_response = table.query(
+                    IndexName='UsernameIndex',  # Query on the GSI for username
+                    KeyConditionExpression=Key('username').eq(username)
                 )
-                session.clear()
-                session['user_id'] = email  # Set the session
-                return redirect(url_for('index'))  # Redirect to index after successful registration
+                
+                if username_response['Items']:
+                    error = 'Username is already taken.'
+
+                # If username is unique, proceed to store the user
+                if error is None:
+                    table.put_item(
+                        Item={
+                            'email': email,
+                            'password': hashed_password,
+                            'username': username
+                        },
+                        ConditionExpression='attribute_not_exists(email)'  # Ensure unique email
+                    )
+                    session.clear()
+                    session['user_id'] = email  # Set the session
+                    return redirect(url_for('index'))  # Redirect after successful registration
             except ClientError as e:
                 if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
                     error = 'Email is already registered.'
@@ -49,12 +66,13 @@ def register():
 
     return render_template('auth/register.html')
 
+
+
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-
         error = None
 
         # Fetch user from DynamoDB
@@ -71,9 +89,9 @@ def login():
             if error is None:
                 session.clear()
                 session['user_id'] = user['email']  # Set the session
-                return redirect(url_for('index'))  # Redirect to index after successful login
+                return redirect(url_for('index'))  # Redirect after successful login
 
-        except ClientError as e:
+        except ClientError:
             error = 'Database error. Please try again later.'
 
         flash(error)
@@ -81,12 +99,10 @@ def login():
     return render_template('auth/login.html')
 
 
-bp.route('/logout')
+@bp.route('/logout')  # Fix missing @bp.route decorator
 def logout():
     session.clear()
-    return redirect(url_for('petition.index'))
-
-
+    return redirect(url_for('petition.index'))  # Ensure petition.index exists
 
 
 def login_required(view):
@@ -94,7 +110,6 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
-
         return view(**kwargs)
 
     return wrapped_view
@@ -110,6 +125,6 @@ def load_logged_in_user():
         table = dynamodb.Table('Users')
         try:
             response = table.get_item(Key={'email': user_id})
-            g.user = response.get('Item')  
-        except Exception as e:
-            g.user = None 
+            g.user = response.get('Item')
+        except ClientError:
+            g.user = None
