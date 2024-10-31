@@ -5,8 +5,6 @@ from botocore.exceptions import ClientError
 import functools
 from boto3.dynamodb.conditions import Key
 
-
-
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 dynamodb = get_dynamodb_resource()
@@ -36,14 +34,19 @@ def register():
             try:
                 # Check for existing username
                 username_response = table.query(
-                    IndexName='UsernameIndex',  # Query on the GSI for username
+                    IndexName='UsernameIndex',  # Ensure this index exists
                     KeyConditionExpression=Key('username').eq(username)
                 )
                 
                 if username_response['Items']:
                     error = 'Username is already taken.'
-
-                # If username is unique, proceed to store the user
+                else:
+                    # Check for existing email
+                    email_response = table.get_item(Key={'email': email})
+                    if email_response.get('Item'):
+                        error = 'Email is already registered.'
+                
+                # If no errors, proceed to store the user
                 if error is None:
                     table.put_item(
                         Item={
@@ -57,15 +60,11 @@ def register():
                     session['user_id'] = email  # Set the session
                     return redirect(url_for('index'))  # Redirect after successful registration
             except ClientError as e:
-                if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-                    error = 'Email is already registered.'
-                else:
-                    error = 'Registration failed.'
+                error = 'Registration failed. Please try again later.'
 
         flash(error)
 
     return render_template('auth/register.html')
-
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -106,6 +105,7 @@ def logout():
 
 
 def login_required(view):
+    """Decorator to ensure user is logged in."""
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
@@ -117,6 +117,7 @@ def login_required(view):
 
 @bp.before_app_request
 def load_logged_in_user():
+    """Load the logged-in user from the session."""
     user_id = session.get('user_id')
 
     if user_id is None:

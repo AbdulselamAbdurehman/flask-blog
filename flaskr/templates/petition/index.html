@@ -34,7 +34,8 @@ content %}
       <h2 class="text-xl font-semibold text-gray-700">{{ petition.title }}</h2>
       <p class="text-gray-600 mt-2">{{ petition.body }}</p>
       <div class="text-sm text-gray-400 mt-4">
-        by {{ petition.author_id }} on {{ petition.created }}
+        by {{ petition.author_id }} on {{ petition.created[:10] }}
+        <!-- Simple slicing -->
       </div>
     </div>
   </a>

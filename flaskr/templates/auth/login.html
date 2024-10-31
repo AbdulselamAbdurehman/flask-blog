@@ -1,9 +1,24 @@
-{% extends 'base.html' %} {% block title %}Login{% endblock %} {% block content
-%}
+{% extends 'base.html' %} {% block title %} Login {% endblock %} {% block
+content %}
 <div
   class="max-w-md mx-auto bg-white p-8 border border-gray-300 rounded-lg shadow-md"
 >
   <h2 class="text-2xl font-semibold mb-6">Login</h2>
+
+  <!-- Display error messages -->
+  {% with messages = get_flashed_messages() %} {% if messages %}
+  <div class="mb-4">
+    <ul
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %} {% endwith %}
+
   <form method="post">
     <div class="mb-4">
       <label for="email" class="block text-sm font-medium text-gray-700"
@@ -42,6 +57,13 @@
         class="text-blue-600 hover:text-blue-800"
         >Register here</a
       >.
+    </p>
+    <p class="mt-2 text-sm">
+      <a
+        href="{{ url_for('auth.forgot_password') }}"
+        class="text-blue-600 hover:text-blue-800"
+        >Forgot Password?</a
+      >
     </p>
   </form>
 </div>

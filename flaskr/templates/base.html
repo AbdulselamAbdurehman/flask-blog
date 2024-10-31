@@ -60,5 +60,32 @@
         {% block content %}{% endblock %}
       </div>
     </div>
+
+    <footer class="bg-blue-600 text-white mt-8 py-4">
+      <div class="container mx-auto text-center">
+        <p>&copy; {{ current_year }} My PetitionApp. All rights reserved.</p>
+        <p class="text-sm">Today's date: {{ current_date }}</p>
+      </div>
+    </footer>
+
+    {% block scripts %}
+    <script>
+      // JavaScript to set current year and date dynamically
+      document.addEventListener("DOMContentLoaded", function () {
+        const date = new Date();
+        const year = date.getFullYear();
+        const options = { year: "numeric", month: "long", day: "numeric" };
+        const currentDate = date.toLocaleDateString(undefined, options);
+
+        // Set the footer content
+        document.querySelector(
+          "footer p:nth-child(1)"
+        ).textContent = `© ${year} My PetitionApp. All rights reserved.`;
+        document.querySelector(
+          "footer p:nth-child(2)"
+        ).textContent = `Today's date: ${currentDate}`;
+      });
+    </script>
+    {% endblock %}
   </body>
 </html>
