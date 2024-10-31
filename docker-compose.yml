@@ -1,0 +1,24 @@
+# version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"  # Maps port 5000 on your machine to port 5000 in the container
+    environment:
+      - AWS_ACCESS_KEY_ID=dummy_access_key
+      - AWS_SECRET_ACCESS_KEY=dummy_secret_key
+      - AWS_DEFAULT_REGION=dummy_region
+    depends_on:
+      - dynamodb
+    volumes:
+      - .:/app  # Optional for local development; removes need to rebuild for code changes
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    ports:
+      - "8000:8000"  # Maps port 8000 on your machine to port 8000 in the container
+    environment:
+      - JAVA_OPTS=-Xmx512m
+    command: "-jar DynamoDBLocal.jar -inMemory -sharedDb"
