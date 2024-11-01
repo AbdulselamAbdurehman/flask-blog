@@ -28,60 +28,68 @@
       }
     </style>
   </head>
-  <body class="bg-gray-50 font-sans">
-    <nav class="bg-blue-600 shadow-lg">
-      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <a
-            href="{{ url_for('index') }}"
-            class="text-2xl font-semibold text-white hover:text-blue-100"
-            >Petition App</a
-          >
-          <div class="flex space-x-4">
-            {% if g.user %}
+  <body class="bg-gray-50 font-sans flex flex-col justify-between min-h-screen">
+    <div>
+      <nav class="bg-blue-600 shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
             <a
-              href="{{ url_for('auth.logout') }}"
-              class="text-white hover:text-blue-100"
-              >Logout</a
+              href="{{ url_for('index') }}"
+              class="text-2xl font-semibold text-white hover:text-blue-100"
+              >PetitionApp</a
             >
-            {% else %}
-            <a
-              href="{{ url_for('auth.login') }}"
-              class="text-white hover:text-blue-100"
-              >Login</a
-            >
-            <a
-              href="{{ url_for('auth.register') }}"
-              class="text-white hover:text-blue-100"
-              >Register</a
-            >
-            {% endif %}
+            <div class="flex space-x-4">
+              {% if g.user %}
+              <a
+                href="{{ url_for('auth.logout') }}"
+                class="text-white hover:text-blue-100"
+                >Logout</a
+              >
+              {% else %}
+              <a
+                href="{{ url_for('auth.login') }}"
+                class="text-white hover:text-blue-100"
+                >Login</a
+              >
+              <a
+                href="{{ url_for('auth.register') }}"
+                class="text-white hover:text-blue-100"
+                >Register</a
+              >
+              {% endif %}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <div class="container mx-auto mt-8 content">
-      {% with messages = get_flashed_messages() %} {% if messages %}
-      <div
-        class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6"
-      >
-        <p class="font-semibold mb-2">Notice</p>
-        <ul class="list-disc list-inside">
-          {% for message in messages %}
-          <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %} {% endwith %}
+      <div class="container mx-auto mt-8 content">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <div
+          class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6"
+        >
+          <p class="font-semibold mb-2">Notice</p>
+          <ul class="list-disc list-inside">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %} {% endwith %}
 
-      <div class="bg-white shadow-md rounded-lg p-6">
-        {% block content %}{% endblock %}
+        <div class="bg-white shadow-md rounded-lg p-6">
+          {% block content %}{% endblock %}
+        </div>
       </div>
     </div>
 
     <footer>
-      <p>© {{ current_year }} My PetitionApp. All rights reserved.</p>
+      <p>
+        ©
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        PetitionApp. All rights reserved.
+      </p>
     </footer>
   </body>
 </html>
