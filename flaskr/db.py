@@ -32,16 +32,16 @@ def init_dynamodb_tables(dynamodb):
         print("Users table already exists.")
 
     try:
-        # Create Petitions table if it doesn't exist
+        # Create Blogs table if it doesn't exist
         dynamodb.create_table(
-            TableName='Petitions',
-            KeySchema=[{'AttributeName': 'petition_id', 'KeyType': 'HASH'}],  # Partition key only
-            AttributeDefinitions=[{'AttributeName': 'petition_id', 'AttributeType': 'S'}],  # String type for partition key
+            TableName='Blogs',
+            KeySchema=[{'AttributeName': 'blog_id', 'KeyType': 'HASH'}],  # Partition key only
+            AttributeDefinitions=[{'AttributeName': 'blog_id', 'AttributeType': 'S'}],  # String type for partition key
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
-        print("Created Petitions table.")
+        print("Created Blogs table.")
 
     except dynamodb.meta.client.exceptions.ResourceInUseException:
-        print("Petitions table already exists.")
+        print("Blogs table already exists.")
 
     # Optionally, you could return the tables or their status if needed

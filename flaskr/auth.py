@@ -99,7 +99,7 @@ def login():
 @bp.route('/logout')  # Fix missing @bp.route decorator
 def logout():
     session.clear()
-    return redirect(url_for('petition.index'))  # Ensure petition.index exists
+    return redirect(url_for('blog.index'))  # Ensure blog.index exists
 
 
 def login_required(view):

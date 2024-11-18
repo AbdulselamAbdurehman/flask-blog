@@ -1,32 +1,32 @@
-{% extends 'base.html' %} {% block title %} View Petition {% endblock %} {%
-block content %}
+{% extends 'base.html' %} {% block title %} View Blog {% endblock %} {% block
+content %}
 <div class="max-w-2xl mx-auto mt-8 p-6 bg-white shadow-md rounded-lg">
-  <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ petition.title }}</h1>
-  <p class="text-gray-600 mb-4">{{ petition.body }}</p>
+  <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ blog.title }}</h1>
+  <p class="text-gray-600 mb-4">{{ blog.body }}</p>
   <div class="text-sm text-gray-400 mb-4">
-    by {{ petition.author_id }} on {{ petition.created[:10] }}
+    by {{ blog.author_id }} on {{ blog.created[:10] }}
     <!-- Assuming 'created' is in ISO format -->
   </div>
 
-  {% if g.user and g.user['username'] == petition.author_id %}
+  {% if g.user and g.user['username'] == blog.author_id %}
   <div class="flex space-x-4 mb-4">
     <a
-      href="{{ url_for('petition.update', id=petition.petition_id) }}"
+      href="{{ url_for('blog.update', id=blog.blog_id) }}"
       class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 transition duration-200"
       aria-label="Edit this
-      petition"
+      blog"
     >
       Edit
     </a>
     <form
-      action="{{ url_for('petition.delete', id=petition.petition_id) }}"
+      action="{{ url_for('blog.delete', id=blog.blog_id) }}"
       method="post"
       style="display: inline"
     >
       <button
         type="submit"
         class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition duration-200"
-        aria-label="Delete this petition"
+        aria-label="Delete this blog"
       >
         Delete
       </button>
@@ -35,10 +35,10 @@ block content %}
   {% endif %}
 
   <a
-    href="{{ url_for('petition.index') }}"
+    href="{{ url_for('blog.index') }}"
     class="mt-4 inline-block text-blue-600 hover:underline"
   >
-    Back to Petitions
+    Back to Blogs
   </a>
 </div>
 {% endblock %}

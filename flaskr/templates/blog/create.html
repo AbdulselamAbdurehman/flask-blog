@@ -1,7 +1,7 @@
-{% extends 'base.html' %} {% block title %} {{ petition.title if petition else
-'Create a New Petition' }} {% endblock %} {% block header %}
+{% extends 'base.html' %} {% block title %} {{ blog.title if blog else 'Create a
+New Blog' }} {% endblock %} {% block header %}
 <h1 class="text-3xl font-bold text-center mb-6">
-  {% if petition %}Update Petition{% else %}Create a New Petition{% endif %}
+  {% if blog %}Update Blog{% else %}Create a New Blog{% endif %}
 </h1>
 {% endblock %} {% block content %}
 <div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
@@ -28,8 +28,8 @@
         type="text"
         name="title"
         id="title"
-        value="{{ petition.title if petition else '' }}"
-        placeholder="Enter the title of your petition"
+        value="{{ blog.title if blog else '' }}"
+        placeholder="Enter the title of your blog"
         required
         class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-200"
       />
@@ -43,11 +43,11 @@
         name="body"
         id="body"
         rows="5"
-        placeholder="Describe the purpose of your petition"
+        placeholder="Describe the purpose of your blog"
         required
         class="mt-1 block w-full border border-gray-300 rounded-md p-1 shadow-sm focus:outline-none focus:ring focus:ring-blue-200"
       >
-        {{ petition.body if petition else '' }}
+        {{ blog.body if blog else '' }}
       </textarea>
     </div>
 
@@ -55,14 +55,14 @@
       type="submit"
       class="w-full bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition duration-200"
     >
-      {% if petition %}Update{% else %}Create{% endif %}
+      {% if blog %}Update{% else %}Create{% endif %}
     </button>
   </form>
 
   {% if g.user %}
   <a
     class="block text-center mt-4 text-blue-600 hover:underline"
-    href="{{ url_for('petition.index') }}"
+    href="{{ url_for('blog.index') }}"
   >
     Back to List
   </a>

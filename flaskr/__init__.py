@@ -3,7 +3,7 @@ from flask import Flask, render_template
 from dotenv import load_dotenv
 from . import db
 from . import auth
-from . import petition
+from . import blog
 
 load_dotenv()
 
@@ -11,7 +11,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
-        SECRET_KEY=os.getenv("SECRET_KEY")
+        SECRET_KEY='os.getenv("SECRET_KEY")'
     )
     
     if test_config is None:
@@ -32,23 +32,24 @@ def create_app(test_config=None):
 
     # Register blueprints
     app.register_blueprint(auth.bp)
-    app.register_blueprint(petition.bp)
+    app.register_blueprint(blog.bp)
 
     # Define the index route directly
     @app.route('/')
     def index():
-        """Render the index page with petitions."""
-        table = dynamodb.Table('Petitions')
+        """Render the index page with blogs."""
+        table = dynamodb.Table('Blogs')
         try:
             response = table.scan()
-            petitions = response.get('Items', [])
+            blogs = response.get('Items', [])
         except Exception as e:
-            print(f"Error fetching petitions: {e}")
-            petitions = []
-        return render_template('petition/index.html', petitions=petitions)
+            print(f"Error fetching blogs: {e}")
+            blogs = []
+        return render_template('blog/index.html', blogs=blogs)
 
     @app.route('/hello')
     def hello():
         return 'Hello, DynamoDB World!'
 
     return app
+
