@@ -54,4 +54,4 @@ env.bak/
 venv.bak/
 
 # Image files
-/flaskr/static/images/*.*
+/flaskr/static/images/

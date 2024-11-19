@@ -63,7 +63,6 @@ def create():
                 'created': datetime.datetime.utcnow().isoformat(),
             }
             blogs_table.put_item(Item=item)
-            flash('Blog created successfully!')
             return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')

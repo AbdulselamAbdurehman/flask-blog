@@ -32,9 +32,10 @@
   <a class="p-3" href="{{ url_for('blog.view', id=blog.blog_id) }}">
     <div class="bg-white shadow-md rounded-lg p-4">
       <h2 class="text-xl font-semibold text-gray-700">{{ blog.title }}</h2>
-      <div class="max-w-prose overflow-hidden">
+      <div class="overflow-hidden max-h-10">
         <p class="text-gray-700 text-sm line-clamp-3">{{ blog.body }}</p>
       </div>
+
       <div class="text-sm text-gray-400 mt-4">
         by {{ blog.author_id }} on {{ blog.created[:10] }}
       </div>
