@@ -4,7 +4,7 @@ New Blog' }} {% endblock %} {% block header %}
   {% if blog %}Update Blog{% else %}Create a New Blog{% endif %}
 </h1>
 {% endblock %} {% block content %}
-<div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
+<div class="mx-auto bg-white shadow-md rounded-lg p-6 w-full">
   <!-- Display error messages -->
   {% with messages = get_flashed_messages() %} {% if messages %}
   <div class="mb-4">
@@ -19,12 +19,13 @@ New Blog' }} {% endblock %} {% block header %}
   </div>
   {% endif %} {% endwith %}
 
-  <form method="post">
-    <div class="mb-4">
+  <form method="POST" enctype="multipart/form-data" class="w-full">
+    <div classs="mb-4 w-full">
       <label for="title" class="block text-sm font-medium text-gray-700"
         >Title</label
       >
       <input
+        width="100%"
         type="text"
         name="title"
         id="title"
@@ -40,15 +41,23 @@ New Blog' }} {% endblock %} {% block header %}
         >Body</label
       >
       <textarea
+        width="100%"
         name="body"
         id="body"
-        rows="5"
+        rows="8"
         placeholder="Describe the purpose of your blog"
         required
-        class="mt-1 block w-full border border-gray-300 rounded-md p-1 shadow-sm focus:outline-none focus:ring focus:ring-blue-200"
+        class="mt-1 block w-full border border-gray-300 rounded-md p-1 shadow-sm focus:outline-none focus:ring focus:ring-blue-100"
       >
-        {{ blog.body if blog else '' }}
       </textarea>
+      <label for="header-img">Header Image</label>
+      <input
+        accept="image/png, image/jpeg, image/jpg"
+        type="file"
+        name="header-img"
+        id="header-img"
+        class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-100"
+      />
     </div>
 
     <button

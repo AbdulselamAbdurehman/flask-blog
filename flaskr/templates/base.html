@@ -63,19 +63,6 @@
       </nav>
 
       <div class="container mx-auto mt-8 content">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <div
-          class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6"
-        >
-          <p class="font-semibold mb-2">Notice</p>
-          <ul class="list-disc list-inside">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %} {% endwith %}
-
         <div class="bg-white shadow-md rounded-lg p-6">
           {% block content %}{% endblock %}
         </div>

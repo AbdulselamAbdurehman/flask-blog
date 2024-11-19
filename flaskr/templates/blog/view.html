@@ -2,6 +2,11 @@
 content %}
 <div class="max-w-2xl mx-auto mt-8 p-6 bg-white shadow-md rounded-lg">
   <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ blog.title }}</h1>
+  <img
+    src="{{ url_for('static', filename='images/' + blog.header_img) }}"
+    alt="{{ blog.title }}"
+    class="w-full h-64 object-cover rounded-lg mb-4"
+  />
   <p class="text-gray-600 mb-4">{{ blog.body }}</p>
   <div class="text-sm text-gray-400 mb-4">
     by {{ blog.author_id }} on {{ blog.created[:10] }}

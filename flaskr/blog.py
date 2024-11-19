@@ -5,6 +5,8 @@ from werkzeug.exceptions import abort
 from flaskr.auth import login_required
 from .db import get_dynamodb_resource
 from botocore.exceptions import ClientError
+from werkzeug.utils import secure_filename
+
 
 bp = Blueprint('blog', __name__)
 dynamodb = get_dynamodb_resource()
@@ -31,19 +33,37 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title')
         body = request.form.get('body')
-
+        filename = None
         if not title:
             flash('Title is required.')
+        elif not body:
+            flash('Body is required.')
         else:
-            author_id = g.user['username']   
+            try:
+                # Handle the uploaded header image
+                header_img = request.files.get('header-img')
+                
+                if header_img and header_img.filename:
+                    # Generate a secure, unique filename
+                    filename = f"{uuid.uuid4().hex}.{secure_filename(header_img.filename).split('.')[-1]}"
+                    # Save the image in the static/images directory
+                    img_path = f"flaskr/static/images/{filename}"
+                    header_img.save(img_path)
+            except Exception as e:
+                flash(f"Error saving header image: {str(e)}")
+                return redirect(url_for('blog.create'))
+            # Add blog to the database
+            author_id = g.user['username']
             item = {
+                'header_img': filename,  # Save only the filename
                 'blog_id': str(uuid.uuid4()),
                 'title': title,
                 'body': body,
                 'author_id': author_id,
-                'created': datetime.datetime.now().isoformat(),
+                'created': datetime.datetime.utcnow().isoformat(),
             }
             blogs_table.put_item(Item=item)
+            flash('Blog created successfully!')
             return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')
